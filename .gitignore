@@ -1,0 +1,121 @@
+# =====================================================================
+# .gitignore — 概念学习仓库
+# 生成时间：2026-09-08
+# 用途：防止 API Key / 密码 / 私钥等敏感信息、以及系统与工具缓存
+#       被误提交到版本库。所有规则按"先忽略、后白名单例外"组织。
+# 提示：规则只对新文件生效；已被 git 跟踪的文件不受 .gitignore 控制，
+#       需用 `git rm --cached <file>` 解除跟踪。
+# =====================================================================
+
+# ---------- 敏感信息：API Key / 密码 / 凭据（最高优先级） ----------
+# 环境变量文件（最常藏密钥，务必忽略；示例/模板文件保留）
+.env
+.env.*
+!.env.example
+!.env.template
+
+# 私钥 / 证书（.pub 公钥可公开，无需忽略）
+*.pem
+*.key
+*.p12
+*.pfx
+*.p7b
+*.keystore
+*.jks
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+*.keychain
+
+# 云平台 / 服务账号凭据
+credentials.json
+credentials.*
+service-account*.json
+service_account*.json
+client_secret*.json
+client-secret*.json
+google-credentials*.json
+secrets.*
+*.secret
+.htpasswd
+.netrc
+_netrc
+
+# 常见"存放令牌/口令"的本地开发文件
+*.local.json
+*.local.yaml
+*.local.yml
+config/credentials*
+config/prod.*
+config/production.*
+
+# 扫描工具 / 破解工具字典类（防误传）
+rockyou.txt
+wordlists/
+
+# ---------- 系统 / 资源管理器 ----------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ---------- IDE / 编辑器 ----------
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+*.orig
+.tern-project
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+ENV/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# ---------- Node / 前端 ----------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
+coverage/
+coverage.*
+.turbo/
+
+# ---------- 日志 / 缓存 / 临时文件 ----------
+*.log
+logs/
+*.tmp
+*.temp
+.cache/
+.caches/
+*.bak
+
+# ---------- WorkBuddy 项目内部数据（保留 skills，忽略记忆/凭据） ----------
+# 工作日志与记忆：属个人过程信息，建议不要随仓库公开
+.workbuddy/memory/
+# MCP / 扩展等本地配置：可能含连接凭据或本机路径
+.workbuddy/mcp.json
+.workbuddy/.mcp.json
+.workbuddy/*.local.json
+
+# ---------- 打包产物（可按需放开） ----------
+# 已随仓库文档说明的可再生备份包，如不需要入库可取消下一行注释
+# concept-learning-material.zip

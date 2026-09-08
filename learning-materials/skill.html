@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill（智能体技能 / Agent Skill）— 概念学习资料</title>
+<style>
+  :root{
+    --ink:#1f2430; --muted:#5b6472; --line:#e3e8ef; --bg:#f4f6fa; --card:#ffffff;
+    --accent:#0d9488; --accent-soft:#e6f7f4;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.8;font-size:15.5px;}
+  .wrap{max-width:880px;margin:0 auto;padding:34px 20px 70px;}
+  .hero{background:linear-gradient(135deg,#0f766e 0%,#0d9488 55%,#2dd4bf 100%);
+    border-radius:16px;padding:30px 34px;color:#fff;}
+  .hero .kicker{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);
+    border-radius:999px;padding:2px 14px;font-size:12.5px;letter-spacing:.5px;margin-bottom:14px;}
+  .hero h1{margin:0 0 10px;font-size:30px;line-height:1.3;}
+  .hero .sub{font-size:15px;opacity:.95;margin:0;}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+  .chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);
+    padding:3px 12px;border-radius:8px;font-size:12.5px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:26px 32px;margin-top:20px;box-shadow:0 1px 3px rgba(16,24,40,.05);}
+  h2{display:flex;align-items:center;gap:12px;margin:0 0 14px;font-size:20px;}
+  .num{flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;
+    display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;}
+  h3{font-size:16.5px;margin:18px 0 8px;color:var(--accent);}
+  p{margin:10px 0;}
+  ul,ol{margin:8px 0 12px;padding-left:24px;}
+  li{margin:5px 0;}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:14px 0;}
+  th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top;}
+  th{background:#eef7f5;font-weight:600;}
+  code{background:#e9f5f3;border:1px solid #d4e9e5;border-radius:5px;padding:1px 6px;
+    font-family:Consolas,Menlo,monospace;font-size:13.5px;}
+  pre.flow{background:#0f172a;color:#ccfbf1;border-radius:10px;padding:16px 18px;overflow-x:auto;
+    font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.6;}
+  pre.tree{background:#f6faf9;color:#0f3d3a;border:1px solid var(--line);border-radius:10px;
+    padding:14px 18px;overflow-x:auto;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.55;}
+  .note{background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:8px;
+    padding:12px 16px;margin:14px 0;font-size:14px;}
+  .warn{border-left-color:#d97706;background:#fef4e6;}
+  .sources{list-style:none;padding-left:0;}
+  .sources li{border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:10px 0;font-size:14px;}
+  .sources .u{display:block;margin-top:4px;font-size:13px;}
+  .sources a{color:var(--accent);word-break:break-all;text-decoration:none;}
+  .sources a:hover{text-decoration:underline;}
+  .tag{display:inline-block;background:var(--accent-soft);color:var(--accent);font-size:12px;
+    padding:1px 10px;border-radius:999px;margin-right:6px;}
+  footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:28px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <span class="kicker">CONCEPT LEARNING MATERIAL</span>
+    <h1>Skill（智能体技能 / Agent Skill）</h1>
+    <p class="sub">把"怎么做好某类任务"的专业知识打包成文件夹（SKILL.md + 可选脚本/资料），让通用 AI 助手的专业技能按需加载——学会一次，随处复用。</p>
+    <div class="meta">
+      <span class="chip">学科：人工智能 · 智能体工程 / 提示工程</span>
+      <span class="chip">难度：入门 → 进阶</span>
+      <span class="chip">别名：Agent Skill / 技能 / Skills（Anthropic Agent Skills 体系）</span>
+      <span class="chip">检索核实：2026-09-08</span>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2><span class="num">1</span>个人解释</h2>
+    <p><strong>给"上一课的自己"讲：</strong>如果你每天要教一位聪明的实习生做十几件专业活，你不会把每件活的《操作规程》都贴满他的工位——你会把每份 SOP 装进各自的文件夹、写上封面简介（"这是什么、什么时候用"），让他先记住有哪些文件夹，等接到对应任务时再去翻对应的那本。Skill 之于 AI 助手，就是这些<b>文件夹</b>。</p>
+    <p><strong>本质：</strong>Skill 是一个<b>以文件系统形式存在的目录</b>：必须包含一个带 YAML 元数据（name + description）的 <code>SKILL.md</code>，可选携带可执行脚本（scripts/）、参考文档（references/）、模板资源（assets/）。元数据里的 <code>description</code> 是"触发开关"——AI 靠它判断"这个任务要不要打开这份技能"。</p>
+    <p><strong>为什么会出现：</strong>把大量一次性指令堆在系统提示词里会稀释模型注意力、浪费上下文；而 Skill 用<b>"渐进式披露"</b>解决：平时只占用每份技能约 100 token 的元数据，真正需要时才把完整指令读入。相比传统 Prompt，它<b>可复用、可组合、可跨产品移植</b>，还能附带确定性脚本（如用 Python 处理 Excel），把"生成式推理"和"确定性计算"结合。</p>
+    <p class="note">生活化类比：提示词 = 随口交代的一句嘱托；Skill = 放在抽屉里、按需取阅的《岗位操作手册》。两者可以都做，但手册能让任何一位"员工"（不同会话、不同产品的 AI）都按同一标准办事。</p>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">2</span>核心机制</h2>
+
+    <h3>2.1 标准目录结构</h3>
+    <pre class="tree">my-skill/                     技能根目录（文件夹名 = 技能标识）
+├── SKILL.md                  必填：YAML 元数据 + Markdown 指令（"说明书"）
+│     ├── name: my-skill      必填，小写字母+数字+连字符，与目录名一致（约 ≤64 字符）
+│     └── description: …      必填，写明"做什么 + 何时用"，是触发匹配的依据（≤1024 字符）
+├── scripts/                  可选：可执行脚本（Python/Bash…），确定性操作
+├── references/               可选：参考文档，需要时按需读入上下文
+└── assets/                   可选：模板/字体等，直接用于产出、不必读入上下文</pre>
+
+    <h3>2.2 三层加载：渐进式披露（Progressive Disclosure）</h3>
+    <table>
+      <tr><th>层级</th><th>加载时机</th><th>上下文开销</th><th>内容</th></tr>
+      <tr><td>第 1 层：元数据</td><td>启动即常驻</td><td>每技能约 100 token</td><td>name 与 description——AI 借此"知道有哪些技能、何时该用"</td></tr>
+      <tr><td>第 2 层：指令</td><td>任务命中 description 时触发</td><td>SKILL.md 主体（一般 &lt;5k token）</td><td>读入完整操作流程与最佳实践</td></tr>
+      <tr><td>第 3 层：资源与代码</td><td>执行中按需</td><td>读取前为 0</td><td>references 按需读入；scripts 直接执行，只有输出回传上下文</td></tr>
+    </table>
+    <p>正因为"未触发前只占元数据"，你可以安装很多技能而几乎不挤占上下文；也正因为脚本只回传输出，打包再多代码也不会把上下文塞满。</p>
+
+    <h3>2.3 运行流程</h3>
+    <pre class="flow">启动：系统提示词里注入所有可用技能的 名称+描述（仅此而已）
+   │
+   ▼
+用户请求到来：AI 比对各技能 description 是否与任务相关
+   │
+   ├─ 不相关 → 忽略该技能，正常处理（技能不消耗上下文）
+   │
+   ▼
+相关 → 触发激活：读取该技能目录下的 SKILL.md 全文
+   │
+   ▼
+按指令执行：必要时继续读 references/、执行 scripts/（只取输出）
+   │
+   ▼
+多个技能可组合（composable），AI 自动协调它们共同完成任务</pre>
+
+    <h3>2.4 生态与标准现状</h3>
+    <ul>
+      <li><b>官方预置技能：</b>Anthropic 提供 PowerPoint（pptx）、Excel（xlsx）、Word（docx）、PDF 等文档类 Agent Skills，可通过 API 的 skills 参数、Claude Code、claude.ai 等使用。</li>
+      <li><b>自定义技能：</b>把领域知识与组织流程打包为 SKILL.md 目录即可，个人/组织均可创建；团队与企业版支持组织级集中管理与扫描。</li>
+      <li><b>开放标准：</b>Anthropic 于 2025 年将 Agent Skills 作为开放标准发布在 agentskills.io，同一格式可跨采用该标准的平台使用。</li>
+      <li><b>触发方式：</b>大多数产品里由 AI 按 description <b>自动判断是否激活</b>，无需用户手动选择——description 写得准不准，直接决定技能会不会被正确唤醒。</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">3</span>应用场景</h2>
+
+    <h3>3.1 文档办公：PPT / Excel / Word / PDF 处理</h3>
+    <p><b>何时用：</b>用户要求"生成一份演示文稿/表格/合同"。<b>为什么：</b>文档格式细节繁杂，靠提示词临场发挥易错；技能可内置可靠的代码库。<b>怎么用：</b>触发技能后按 SKILL.md 流程执行——官方文档技能在 claude.ai 与 API 中已默认可用（quickstart 演示 10 分钟内用 pptx 技能生成演示文稿）；这也是许多人第一次"无感"用到技能的场景。</p>
+
+    <h3>3.2 组织知识捕获：品牌规范 / 流程 / 机构知识</h3>
+    <p><b>何时用：</b>公司希望 AI 按统一规范产出——品牌配色版式、代码风格、合规流程、发布检查单。<b>为什么：</b>把"团队怎么做"沉淀成可版本管理的文件夹，全员、全项目一致执行，不必每次重述。<b>怎么用：</b>将工作流与最佳实践写进 SKILL.md（可含模板与校验脚本），组织统一发布；AI 在相关任务自动采用，等于给团队配了"永不忘记的老员工"。</p>
+
+    <h3>3.3 个人学习工作流：把重复流程"技能化"</h3>
+    <p><b>何时用：</b>你反复要求 AI 按固定结构做某类事（如生成概念学习讲义、周报、调研笔记）。<b>为什么：</b>把"个人方法"固化成技能后，任何会话都能一键复现，还能迭代改进。<b>怎么用：</b>以"概念学习资料生成"为例——它就是一个典型 Skill：SKILL.md 规定输入、五段输出结构与自检清单；触发词是"帮我学透/生成学习资料"。这份学习资料的产出方式，本身就是该技能的应用实例。</p>
+
+    <h3>3.4 数据分析等专业流水线</h3>
+    <p><b>何时用：</b>需要多步骤、带领域判断的分析任务（如客户流失分析：校验列→算留存指标→分群→出报告）。<b>为什么：</b>此类任务属于"Know-how"（怎么做），而非单次工具调用（Do-this），技能可编排多个工具并内置领域判断。<b>怎么用：</b>把流程、判定规则与输出模板打包；AI 只在收到该类请求时加载，避免无关任务互相干扰。</p>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">4</span>边界辨析</h2>
+
+    <h3>4.1 相近概念对比（Skill vs 其他机制）</h3>
+    <table>
+      <tr><th>机制</th><th>定位</th><th>关键区别</th></tr>
+      <tr><td>Prompt / 自定义指令</td><td>一次性或全局的对话级指示</td><td>指令常驻所有对话、面向全局；Skill 面向特定任务、按需加载，更省上下文、更易专业化</td></tr>
+      <tr><td>工具 / Function / MCP</td><td>"能调用什么"——外部连接与动作</td><td>工具=执行能力（查天气、读数据库）；Skill=程序性知识（如何完成工作流、如何用好这些工具）。两者互补可并用：MCP 给连接，Skill 教方法</td></tr>
+      <tr><td>Project / 项目知识</td><td>启动即常驻的静态背景知识</td><td>Project 永远在上下文中；Skill 动态激活，跨产品通用，更适合专业流程</td></tr>
+      <tr><td>Skill 本身</td><td>可复用的"Know-how 能力包"</td><td>目录+元数据+渐进式披露；可组合、可移植、可版本管理</td></tr>
+    </table>
+
+    <h3>4.2 适用边界与失效条件</h3>
+    <ul>
+      <li><b>适合做成 Skill：</b>步骤可文档化的专业流程、可复用且频率高的任务、需要捆绑代码/模板/参考资料的任务。</li>
+      <li><b>不适合：</b>需要实时双向通信或访问专有外部系统的场景，通常更适合 MCP/工具连接而非静态技能；一次性随口问答也不必做成技能。</li>
+      <li><b>失效条件：</b><code>description</code> 写得模糊 → 该触发时不触发、不该触发时误触发；环境不允许执行脚本 → 技能携带的代码能力失效（如 API 沙箱限制）。</li>
+      <li><b>安全边界：</b>技能通过指令与代码赋予 AI 新能力，恶意技能可能诱导不当工具调用或数据泄露——仅信任可信来源（自己创建或官方渠道），导入前审查 SKILL.md 与全部打包文件。</li>
+    </ul>
+
+    <h3>4.3 常见误区</h3>
+    <ol>
+      <li><b>误区：Skill = 工具函数。</b>纠正：工具是"一步动作"（Do-this），Skill 是"一套做法"（Know-how：编排、校验、判断规则、输出标准），可内部调用多个工具。</li>
+      <li><b>误区：技能会常驻上下文、装多了变慢。</b>纠正：平时只载入 name+description 元数据（约 100 token/个）；装几十个技能也不会明显挤占窗口。</li>
+      <li><b>误区：触发靠"技能名"被用户提到。</b>纠正：现代实现中 AI 依据 description 与任务的语义匹配自动激活，用户往往无需手动点名——因此 <b>description 质量决定技能生死</b>。</li>
+      <li><b>误区：Skill 与 MCP 是对手、二选一。</b>纠正：官方定位是互补（MCP 管连接、Skill 管方法，可同时使用）；部分工程文章认为 Skills 更轻量、正成为主流载体——存在观点分歧，选择取决于场景。</li>
+    </ol>
+    <p class="note warn">诚实边界："Skill"尚无统一的行业标准格式——Anthropic 主导的 Agent Skills 正被推动为开放标准（agentskills.io），但不同框架仍各有实现（YAML 清单、Python 模块、JSON schema 等）；各家对"技能/工具/插件"的命名与划分也存在措辞差异。本资料以 Anthropic Agent Skills 官方体系为主线呈现，兼顾多来源视角。</p>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">5</span>来源链接</h2>
+    <ul class="sources">
+      <li><span class="tag">官方发布</span><b>Anthropic — "Introducing Agent Skills"</b>（技能理念、Composable/Portable/Efficient、开放标准发布公告）
+        <span class="u"><a href="https://anthropic.com/news/skills" target="_blank">https://anthropic.com/news/skills</a></span></li>
+      <li><span class="tag">官方文档</span><b>Claude Docs — "Agent Skills: Overview"</b>（三层渐进式披露、SKILL.md 字段约束、目录结构、运行机制）
+        <span class="u"><a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview" target="_blank">https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview</a></span></li>
+      <li><span class="tag">官方文档（繁中）</span><b>Claude Docs — 「Agent Skills」總覽</b>（同一文档的中文版，供对照阅读）
+        <span class="u"><a href="https://platform.claude.com/docs/zh-TW/agents-and-tools/agent-skills/overview" target="_blank">https://platform.claude.com/docs/zh-TW/agents-and-tools/agent-skills/overview</a></span></li>
+      <li><span class="tag">官方帮助中心</span><b>Claude 帮助中心 —「什么是技能？」</b>（技能 vs 项目 / MCP / 自定义指令对比、组织管理）
+        <span class="u"><a href="https://support.claude.com/articles/12512176" target="_blank">https://support.claude.com/articles/12512176</a></span></li>
+      <li><span class="tag">官方文档（快速上手）</span><b>Claude Docs — "Get started with Agent Skills in the API"</b>（pptx/xlsx/docx/pdf 预置技能与 API 用法示例）
+        <span class="u"><a href="https://console.anthropic.com/docs/en/agents-and-tools/agent-skills/quickstart" target="_blank">https://console.anthropic.com/docs/en/agents-and-tools/agent-skills/quickstart</a></span></li>
+      <li><span class="tag">开放标准</span><b>Agent Skills（agentskills.io）— Overview</b>（开放格式、目录规范、发现→激活→执行流程）
+        <span class="u"><a href="https://agentskills.io/home" target="_blank">https://agentskills.io/home</a></span></li>
+      <li><span class="tag">技术文章</span><b>DataCamp — "What Are Agent Skills?"</b>（Know-how 定位、上下文污染问题、无统一行业标准的现状）
+        <span class="u"><a href="https://www.datacamp.com/blog/agent-skills" target="_blank">https://www.datacamp.com/blog/agent-skills</a></span></li>
+      <li><span class="tag">工程社区视角</span><b>腾讯云开发者社区 —「AI Agent 核心能力载体：Skills 技能模块…」</b>（Skills vs MCP vs API 的工程视角对比，观点供参考）
+        <span class="u"><a href="https://cloud.tencent.com/developer/article/2628286" target="_blank">https://cloud.tencent.com/developer/article/2628286</a></span></li>
+    </ul>
+  </section>
+
+  <footer>由 concept-learning-skill 生成 · 检索核实日期：2026-09-08 · 学习用途，事实性内容请以列出来源为准</footer>
+</div>
+</body>
+</html>
