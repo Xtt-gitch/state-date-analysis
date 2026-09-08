@@ -1,3 +1,40 @@
+# 统计与数据分析课程仓库
+
+本仓库用于学习《统计与数据分析》课程，记录学习笔记、课后作业和练习代码。
+
+## 目录结构
+
+```
+state-date-analysis/
+├── README.md      # 仓库说明
+├── notes/         # 学习笔记
+├── homework/      # 课后作业
+├── code/          # 练习代码
+└── data/          # 数据集
+```
+
+## 课程内容
+
+- 描述性统计
+- 概率与概率分布
+- 抽样与估计
+- 假设检验
+- 相关与回归分析
+- 数据分析实战
+
+## 使用说明
+
+- 每次课程结束后，把笔记放入 `notes/`，作业放入 `homework/`。
+- 常用 git 命令：
+
+```bash
+git add .                 # 暂存所有改动
+git commit -m "说明"      # 提交改动
+git push                  # 推送到 GitHub
+```
+
+---
+
 # 概念学习仓库（Concept Learning Workspace）
 
 > 一个用于**「把任意新概念真正学透」**的个人学习工作流仓库：
@@ -25,11 +62,15 @@
 │   ├── skills/
 │   │   └── concept-learning-skill/
 │   │       └── SKILL.md            # 项目级 Skill 副本（本仓库随附）
-│   └── memory/                     # 内部工作日志（非交付物）
+│   └── memory/                     # 内部工作日志（非交付物，不入库）
 ├── learning-materials/             # 用 Skill 生成的学习资料（HTML，可直接打开）
 │   ├── agent.html                  #   《Agent》——LLM 不够？Agent 是什么、如何运转
 │   ├── llm-context.html            #   《大模型的上下文》——窗口、token、注意力边界
 │   └── skill.html                  #   《Skill》——智能体技能（SKILL.md）如何工作
+├── code/                           # 练习代码（课程）
+├── data/                           # 数据集（课程）
+├── homework/                       # 课后作业（课程）
+├── notes/                          # 学习笔记（课程）
 ├── concept-relationship.md         # Agent × 上下文 × Skill 关系说明（Mermaid + 文字）
 ├── concept-learning-material.zip   # 用户级 Skill 的打包备份
 └── README.md                       # 本文件
