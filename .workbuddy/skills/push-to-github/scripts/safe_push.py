@@ -23,18 +23,26 @@ import sys
 
 
 def run(args, cwd, allow_fail=False):
+    """执行命令，返回 (returncode, stdout, stderr)。
+
+    显式使用 PIPE 并关闭 stdin：避免 git 等待交互式输入而挂起，
+    同时保证异常路径下 stdout/stderr 依然可读。
+    """
     p = subprocess.run(
-        args, cwd=cwd, capture_output=True, text=True,
-        encoding="utf-8", errors="replace", timeout=300,
+        args, cwd=cwd, stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        text=True, encoding="utf-8", errors="replace", timeout=300,
     )
+    out = (p.stdout or "").strip()
+    err = (p.stderr or "").strip()
     if p.returncode != 0 and not allow_fail:
         raise RuntimeError(
             f"命令失败: {' '.join(args)}\n"
             f"退出码: {p.returncode}\n"
-            f"stderr: {p.stderr.strip()}\n"
-            f"stdout: {p.stdout.strip()}"
+            f"stderr: {err}\n"
+            f"stdout: {out}"
         )
-    return p.returncode, p.stdout.strip(), p.stderr.strip()
+    return p.returncode, out, err
 
 
 def main():
@@ -73,12 +81,20 @@ def main():
         missing = [f for f in args.files
                    if not os.path.exists(os.path.join(repo, f))]
         if missing:
-            print(json.dumps({
-                "ok": False,
-                "error": "以下路径在工作区中不存在（若为已删除文件，请先在远端确认）",
-                "missing": missing,
-            }, ensure_ascii=False, indent=2))
-            sys.exit(2)
+            # 文件不在工作区，可能是"已删除"（应正常记录删除）或"路径写错"。
+            # 用 git ls-files 判断该路径是否曾被跟踪，据此区别处理。
+            _, tracked, _ = run(["git", "ls-files", "--"] + missing,
+                                repo, allow_fail=True)
+            really_missing = [m for m in missing
+                              if m not in tracked.replace("\\", "/").splitlines()]
+            if really_missing:
+                print(json.dumps({
+                    "ok": False,
+                    "error": "以下路径在工作区中不存在，且 git 也不认识（疑似路径写错）",
+                    "missing": really_missing,
+                    "hint": "用 git status 确认实际路径；若确为已删除文件，删除会被正常记录",
+                }, ensure_ascii=False, indent=2))
+                sys.exit(2)
 
         # 1. 添加
         add_cmd = ["git", "add", "--"] + args.files
@@ -86,12 +102,38 @@ def main():
         if not args.dry_run:
             run(add_cmd, repo)
 
-        # 2. 检查暂存区
+        # 2. 检查暂存区（dry-run 不实际 add，故跳过检查直接预演）
         rc, staged, _ = run(["git", "diff", "--cached", "--name-only"], repo)
-        if not staged and not args.allow_empty:
+        if not staged and not args.allow_empty and not args.dry_run:
+            # 区分"确实无改动"与"改动已被此前提交带走"：
+            # 后者无需再提交，也不应报错，直接进入推送环节。
+            rc2, unpushed, _ = run(
+                ["git", "log", "origin/" + branch + "..HEAD", "--oneline"],
+                repo, allow_fail=True)
+            if rc2 == 0 and unpushed:
+                push_cmd = ["git", "push", "origin", branch]
+                log.append(push_cmd)
+                rc3, out3, err3 = run(push_cmd, repo, allow_fail=True)
+                if rc3 != 0:
+                    print(json.dumps({
+                        "ok": False, "error": "推送失败",
+                        "raw": (out3 + "\n" + err3).strip()[:800],
+                    }, ensure_ascii=False, indent=2))
+                    sys.exit(1)
+                _, fs, _ = run(["git", "rev-parse", "--short", "HEAD"], repo,
+                               allow_fail=True)
+                print(json.dumps({
+                    "ok": True, "dry_run": False, "repo": repo,
+                    "note": "暂存区为空，已有待推送提交，跳过提交直接推送",
+                    "remote": remote, "branch": branch, "commit": fs,
+                    "pushed_commits": unpushed.splitlines(),
+                    "commands": [" ".join(c) for c in log],
+                }, ensure_ascii=False, indent=2))
+                sys.exit(0)
+
             print(json.dumps({
                 "ok": False,
-                "error": "暂存区为空，没有可提交的内容",
+                "error": "暂存区为空，且没有待推送的提交",
                 "hint": "确认文件确实有变更，或改用 --allow-empty",
             }, ensure_ascii=False, indent=2))
             sys.exit(2)
