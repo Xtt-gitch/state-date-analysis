@@ -150,7 +150,11 @@ def main():
     entries = [e for e in out.split("\0") if e]
 
     for entry in entries:
-        code, path = entry[:2], entry[3:]
+        code = entry[:2]
+        # -z 模式下：已跟踪条目为 "XY <path>"（索引 3 起），
+        # 未跟踪条目为 "??<path>"（无空格，索引 2 起）。
+        # 不能用固定偏移切分，否则会吃掉路径首字符。
+        path = entry[3:] if len(entry) > 2 and entry[2] == " " else entry[2:]
         norm = path.replace("\\", "/")
         if code.startswith("??"):
             result["untracked"].append(norm)
