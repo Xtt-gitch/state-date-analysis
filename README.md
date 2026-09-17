@@ -7,10 +7,12 @@
 ```
 state-date-analysis/
 ├── README.md      # 仓库说明
+├── .gitignore     # 忽略规则（密钥、缓存、本机配置）
 ├── notes/         # 学习笔记
 ├── homework/      # 课后作业
 ├── code/          # 练习代码
-└── data/          # 数据集
+├── data/          # 数据集
+└── scripts/       # 练习脚本（01.py 等）
 ```
 
 ## 课程内容
@@ -22,15 +24,34 @@ state-date-analysis/
 - 相关与回归分析
 - 数据分析实战
 
-## 使用说明
+## 推送工作流
 
-- 每次课程结束后，把笔记放入 `notes/`，作业放入 `homework/`。
-- 常用 git 命令：
+本仓库随附项目级 Skill **`push-to-github`**（位于 `.workbuddy/skills/push-to-github/`），
+用于把本地改动安全推送到远端。
+
+它会先扫描变更、识别 `.env` / 密钥 / 大文件等风险项，列出提交清单请你确认，
+之后才执行推送。核心约束：
+
+1. 只添加显式确认过的路径，**不用 `git add .`**
+2. 敏感文件一律排除并给出原因
+3. 推送前必须获得确认
+4. 不使用 `--force`
+
+触发方式：直接说「推送到 GitHub」「同步到远程仓库」即可。
+
+### 手动操作（不使用 Skill 时）
 
 ```bash
-git add .                 # 暂存所有改动
-git commit -m "说明"      # 提交改动
-git push                  # 推送到 GitHub
+git status                          # 先看有哪些改动
+git add <具体文件>                   # 逐个添加，避免误传敏感文件
+git commit -m "说明"                # 提交
+git push origin main                # 推送
+```
+
+只要 `git status` 显示本地落后远端，推送前先执行：
+
+```bash
+git pull --rebase origin main       # 让历史线性、避免被拒
 ```
 
 ---
