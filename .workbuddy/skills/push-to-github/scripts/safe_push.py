@@ -120,6 +120,9 @@ def main():
                         "raw": (out3 + "\n" + err3).strip()[:800],
                     }, ensure_ascii=False, indent=2))
                     sys.exit(1)
+                # 此前的 git add 会让索引残留改动（提交已存在，无需再提交），
+                # 推送后把索引同步到 HEAD，避免用户看到虚假的 "M " 状态。
+                run(["git", "reset", "-q", "HEAD"], repo, allow_fail=True)
                 _, fs, _ = run(["git", "rev-parse", "--short", "HEAD"], repo,
                                allow_fail=True)
                 print(json.dumps({
