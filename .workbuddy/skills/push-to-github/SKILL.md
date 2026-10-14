@@ -130,6 +130,24 @@ git ls-remote origin refs/heads/main    # 输出应与本地 git rev-parse HEAD 
 
 `git status` 显示的 `ahead 0` 只反映本地缓存的远端引用，网络不通时可能过期，不能作为"已推送"的唯一证据。
 
+### 已知环境问题：`git status` 显示 `[gone]`，`fetch` 无法写入远端引用
+
+**现象**：`git fetch origin` 报成功（输出 `* [new branch] main -> origin/main`），但 `git show-ref` 里没有 `refs/remotes/origin/main`，`git status` 显示 `## main...origin/main [gone]`。手动用 `echo` 写引用文件能保留，但 git 自己写不进去。
+
+**原因**：编辑器（如 VS Code，其 git 扩展会持续操作 `.git`）正打开该仓库，导致 git 进程写入引用失败并被静默忽略。**这不是仓库损坏，也不是推送失败。**
+
+**判断**：以远端为准 —— `git ls-remote origin refs/heads/main` 能查到、且与本地 `git rev-parse HEAD` 一致，就说明推送是成功的，可以忽略 `[gone]`。
+
+**恢复显示**（手动重建跟踪引用，纯本地操作）：
+
+```bash
+mkdir -p "<repo>/.git/refs/remotes/origin"
+git rev-parse HEAD > "<repo>/.git/refs/remotes/origin/main"
+git show-ref    # 应看到 refs/remotes/origin/main
+```
+
+若之后编辑器关闭，再执行一次 `git fetch origin` 即恢复正常。**不要**因为看到 `[gone]` 就重新推送或强制推送。
+
 ### 第 6 步：报告结果
 
 推送成功后向用户复述关键信息（不要只说"已完成"）：
@@ -149,6 +167,7 @@ git ls-remote origin refs/heads/main    # 输出应与本地 git rev-parse HEAD 
 | `schannel: failed to receive handshake` | HTTPS 通道受阻 | 改用 SSH：`git remote set-url origin git@github.com:<user>/<repo>.git` |
 | 单文件超 100MB | 超出 GitHub 限制 | 排除该文件；若确需版本管理，建议 Git LFS |
 | 命令长时间无响应 | 网络不通 | 检查代理设置；不要反复重试，先诊断 |
+| `git status` 显示 `[gone]` | 编辑器占用 `.git`，远端引用写不进去 | 以 `git ls-remote` 为准判断是否已推送；手动重建引用（见上节），**不要**重新推送 |
 
 ## 硬性约束
 
